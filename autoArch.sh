@@ -149,7 +149,7 @@ if [ -f "$ISCHEZMOI" ]; then
 else
 	echo -e -n "$CFM ${BRed}Do you want install chezmoi? [Y/n] ${Color_Off}"
 	if confirm $DEF_YES; then
-		sudo pacman -S chezmoi
+		sudo pacman -S chezmoi --noconfirm
 		chezmoi init --apply https://github.com/ngtuonghy/dotfiles.git
 	fi
 fi
@@ -160,7 +160,17 @@ if [ -f "$ISNVIM" ]; then
 else
 	echo -e -n "$CFM ${BRed}Do you want install Neovim? [Y/n] ${Color_Off}"
 	if confirm $DEF_YES; then
-		sudo pacman -S neovim
+		sudo pacman -S neovim --noconfirm
+	fi
+fi
+
+ISTMUX=/sbin/tmux
+if [ -f "$ISTMUX" ]; then
+	echo -e "$OK - Tmux was located, moving on." | tee -a "$INSTLOG"
+else
+	echo -e -n "$CFM ${BRed}Do you want install Tmux? [Y/n] ${Color_Off}"
+	if confirm $DEF_YES; then
+		sudo pacman -S tmux --noconfirm
 	fi
 fi
 # auto sync zsh
@@ -178,4 +188,5 @@ else
 	echo -e "\n${SKIP} You has skip sync zsh"
 fi
 
+chsh -s $(which zsh)
 echo -e "\n${BIPurple}Welcome! sync Success${Color_Off}"
