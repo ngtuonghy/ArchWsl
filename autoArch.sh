@@ -143,6 +143,16 @@ else
 		exit
 	fi
 fi
+
+ISNVIM=/sbin/nvim
+if [ -f "$ISNVIM" ]; then
+	echo -e "$OK - Neovim was located, moving on." | tee -a "$INSTLOG"
+else
+	echo -e -n "$CFM ${BRed}Do you want install Neovim? [Y/n] ${Color_Off}"
+	if confirm $DEF_YES; then
+		sudo pacman -S neovim
+	fi
+fi
 # auto sync zsh
 #
 echo -e -n "$CFM ${BRed}Do you want sync zsh? [Y/n] ${Color_Off}"
