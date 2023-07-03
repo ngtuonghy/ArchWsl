@@ -91,6 +91,21 @@ confirm() {
 }
 DEF_YES='?'
 
+clear
+
+#sudo pacman -Sy archlinux-keyring
+MIRRORLIST="/etc/pacman.d/mirrorlist"
+if [ -s ${MIRRORLIST} ]; then
+	# The file is not-empty.
+
+	echo " not null"
+else
+	## Worldwide
+	echo "Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch" >$HOME/mirrorlist.txt
+	sudo mv -v $HOME/mirrorlist.txt /etc/pacman.d/mirrorlist
+	sudo pacman -Syy
+fi
+
 #install yay Helper
 ISYAY=/sbin/yay
 if [ -f "$ISYAY" ]; then
@@ -99,8 +114,7 @@ else
 	echo -e -n "$CFM ${BRed}Do you want install Yay Helper? [Y/n] ${Color_Off}"
 	if confirm $DEF_YES; then
 		sudo pacman -S --needed base-devel --noconfirm | tee -a "$INSTLOG"
-		sleep 1
-		sudo pacman -S git --noconfirm | tee -a "$INSTLOG"
+		sudo pacman -S git --noconfirm | tee -a "$MIRRORLIST"
 		sleep 1
 		git clone https://aur.archlinux.org/yay.git | tee -a "$INSTLOG"
 		cd yay
@@ -108,9 +122,9 @@ else
 		cd ..
 	fi
 	# update the yay database
+	echo -e "$CNT - Updating the yay database..."
+	yay -Suy --noconfirm | tee -a "$INSTLOG"
 fi
-echo -e "$CNT - Updating the yay database..."
-yay -Suy --noconfirm | tee -a "$INSTLOG"
 
 #install zsh & oh my posh
 ISZSH=/sbin/zsh
@@ -136,11 +150,8 @@ if [ -f "$ISCHEZMOI" ]; then
 else
 	echo -e -n "$CFM ${BRed}Do you want install chezmoi? [Y/n] ${Color_Off}"
 	if confirm $DEF_YES; then
-		sudo su
-		cd /
-		sh -c "$(curl -fsLS get.chezmoi.io)" | tee -a "$INSTLOG"
+		sudo pacman -S chezmoi
 		chezmoi init --apply https://github.com/ngtuonghy/dotfiles.git
-		exit
 	fi
 fi
 
@@ -157,12 +168,11 @@ fi
 #
 echo -e -n "$CFM ${BRed}Do you want sync zsh? [Y/n] ${Color_Off}"
 if confirm $DEF_YES; then
-	git clone https://github.com/jeffreytse/zsh-vi-mode \
-		$ZSH_CUSTOM/plugins/zsh-vi-mode
+	git clone https://github.com/jeffreytse/zsh-vi-mode ${ZSH_CUSTOM:-~/.oh-my-zsh/custom/}/plugins/zsh-vi-mode
 
 	git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 
-	git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git \\n\n ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting
+	git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting
 else
 	echo -e "\n${SKIP} You has skip sync zsh"
 fi
