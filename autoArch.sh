@@ -97,7 +97,6 @@ clear
 MIRRORLIST="/etc/pacman.d/mirrorlist"
 if [ -s ${MIRRORLIST} ]; then
 	# The file is not-empty.
-
 	echo " not null"
 else
 	## Worldwide
@@ -168,11 +167,13 @@ fi
 #
 echo -e -n "$CFM ${BRed}Do you want sync zsh? [Y/n] ${Color_Off}"
 if confirm $DEF_YES; then
-	git clone https://github.com/jeffreytse/zsh-vi-mode ${ZSH_CUSTOM:-~/.oh-my-zsh/custom/}/plugins/zsh-vi-mode
+	git clone https://github.com/jeffreytse/zsh-vi-mode ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom/}/plugins/zsh-vi-mode
 
-	git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+	git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 
-	git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting
+	git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting
+
+	git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
 else
 	echo -e "\n${SKIP} You has skip sync zsh"
 fi
