@@ -75,10 +75,8 @@ On_IWhite='\e[0;107m'  # White
 SKIP="[${Yellow}SKIP${Color_Off}]"
 CFM="[${UCyan}CONFIRM${Color_Off}]"
 OK="[${UGreen}OK${Color_Off}]"
-CER="[\e[1;31mERROR\e[0m]"
-CAT="[\e[1;37mATTENTION\e[0m]"
-CWR="[\e[1;35mWARNING\e[0m]"
-CAC="[\e[1;33mACTION\e[0m]"
+ERR="[${URed}ERROR${Color_Off}]"
+NOTE="[${UCyan}NOTE${Color_Off}]"
 INSTLOG="install.log"
 
 confirm() {
@@ -91,13 +89,51 @@ confirm() {
 }
 DEF_YES='?'
 
+# function that will test for a package and if not found it will attempt to install it
+install_software_aur() {
+	# First lets see if the package is there
+	if yay -Q $1 &>>/dev/null; then
+		echo -e "$OK - $1 is already installed."
+	else
+		# no package found so installing
+		echo -e "$NOTE - Now installing $1 ..."
+		yay -S --noconfirm $1 &>>$INSTLOG
+		# test to make sure package installed
+		if yay -Q $1 &>>/dev/null; then
+			echo -e "\e[1A\e[K$OK - $1 was installed."
+		else
+			# if this is hit then a package is missing, exit to review log
+			echo -e "\e[1A\e[K$ERR - $1 install had failed, please check the install.log"
+			exit
+		fi
+	fi
+}
+
+install_software_pacman() {
+	# First lets see if the package is there
+	if sudo pacman -Q $1 &>>/dev/null; then
+		echo -e "$OK - $1 is already installed."
+	else
+		# no package found so installing
+		echo -e "$NOTE - Now installing $1 ..."
+		sudo pacman -S --noconfirm $1 &>>$INSTLOG
+		# test to make sure package installed
+		if sudo pacman -Q $1 &>>/dev/null; then
+			echo -e "\e[1A\e[K$OK - $1 was installed."
+		else
+			# if this is hit then a package is missing, exit to review log
+			echo -e "\e[1A\e[K$ERR - $1 install had failed, please check the install.log"
+		fi
+	fi
+}
+
 clear
 
 #sudo pacman -Sy archlinux-keyring
 MIRRORLIST="/etc/pacman.d/mirrorlist"
 if [ -s ${MIRRORLIST} ]; then
 	# The file is not-empty.
-	echo " not null"
+	echo "mirrorlist not null" >>$INSTLOG
 else
 	## Worldwide
 	echo "Server = https://geo.mirror.pkgbuild.com/$repo/os/$arch" >$HOME/mirrorlist.txt
@@ -154,39 +190,58 @@ else
 	fi
 fi
 
-ISNVIM=/sbin/nvim
-if [ -f "$ISNVIM" ]; then
-	echo -e "$OK - Neovim was located, moving on." | tee -a "$INSTLOG"
-else
-	echo -e -n "$CFM ${BRed}Do you want install Neovim? [Y/n] ${Color_Off}"
-	if confirm $DEF_YES; then
-		sudo pacman -S neovim --noconfirm
-	fi
-fi
-
-ISTMUX=/sbin/tmux
-if [ -f "$ISTMUX" ]; then
-	echo -e "$OK - Tmux was located, moving on." | tee -a "$INSTLOG"
-else
-	echo -e -n "$CFM ${BRed}Do you want install Tmux? [Y/n] ${Color_Off}"
-	if confirm $DEF_YES; then
-		sudo pacman -S tmux --noconfirm
-	fi
-fi
-# auto sync zsh
-#
-echo -e -n "$CFM ${BRed}Do you want sync zsh? [Y/n] ${Color_Off}"
+# install neovim and fd, ripgrep lazy git
+echo -e -n "$CFM ${BGreen}Do you want install Neovim and dependencies[fd, ripgrep, lazygit]? [Y/n] ${Color_Off}"
 if confirm $DEF_YES; then
-	git clone https://github.com/jeffreytse/zsh-vi-mode ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom/}/plugins/zsh-vi-mode
+	echo -e "\n$NOTE - Neovim setup stage, this may take a while..."
+	for SOFT_PACMAN in neovim fd ripgrep lazygit; do
+		install_software_pacman $SOFT_PACMAN
+	done
+else
+	echo -e "\n${SKIP} You has skip install neovim"
+fi
+# auto sync zsh#
 
-	git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-
-	git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting
-
-	git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+echo -e -n "$CFM${BGreen}Do you want sync oh my zsh and plugins? [Y/n] ${Color_Off}"
+if confirm $DEF_YES; then
+	ISVIMMODE=$HOME/.oh-my-zsh/custom/plugins/zsh-vi-mode
+	if [ -d "$ISVIMMODE" ]; then # -d là kiểm tra đường dẫn
+		echo -e "\n$OK - zsh-vi-mode is already installed."
+	else
+		git clone https://github.com/jeffreytse/zsh-vi-mode ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom/}/plugins/zsh-vi-mode
+	fi
+	ISAUTO=$HOME/.oh-my-zsh/custom/plugins/zsh-autosuggestions
+	if [ -d ${ISAUTO} ]; then
+		echo -e "$OK - zsh-autosuggestions is already installed."
+	else
+		git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+	fi
+	ISSYNTAX=$HOME/.oh-my-zsh/custom/plugins/fast-syntax-highlighting
+	if [ -d ${ISSYNTAX} ]; then
+		echo -e "$OK - fast-syntax-highlighting is already installed."
+	else
+		git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/fast-syntax-highlighting
+	fi
+	ISP10K=$HOME/.oh-my-zsh/custom/themes/powerlevel10k
+	if [ -d ${ISP10K} ]; then
+		echo -e "$OK - powerlevel10k is already installed."
+	else
+		git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+	fi
 else
 	echo -e "\n${SKIP} You has skip sync zsh"
 fi
 
-chsh -s $(which zsh)
-echo -e "\n${BIPurple}Welcome! sync Success${Color_Off}"
+# chsh -s $(which zsh)
+
+if [ "$(basename "$SHELL")" = "zsh" ]; then
+	echo -e "$OK - Terminal Default is Zsh"
+else
+	echo -e -n "$CFM ${BGreen}Do you want chage default is zsh? [Y/n] ${Color_Off}"
+	if confirm $DEF_YES; then
+		chsh -s /bin/zsh
+		echo "Terminal Default is Zsh" >>$INSTLOG
+	fi
+fi
+
+echo -e "\n${BIPurple}Welcome! sync Success\nPlease reboot now update${Color_Off}"
