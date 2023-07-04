@@ -146,7 +146,7 @@ ISYAY=/sbin/yay
 if [ -f "$ISYAY" ]; then
 	echo -e "$OK - yay was located, moving on." | tee -a "$INSTLOG"
 else
-	echo -e -n "$CFM ${BRed}Do you want install Yay Helper? [Y/n] ${Color_Off}"
+	echo -e -n "$CFM ${BGreen}Do you want install Yay Helper? [Y/n] ${Color_Off}"
 	if confirm $DEF_YES; then
 		sudo pacman -S --needed base-devel --noconfirm | tee -a "$INSTLOG"
 		sudo pacman -S git --noconfirm | tee -a "$MIRRORLIST"
@@ -166,16 +166,18 @@ ISZSH=/sbin/zsh
 if [ -f "$ISZSH" ]; then
 	echo -e "$OK - zsh was located, moving on." | tee -a "$INSTLOG"
 else
-	echo -e -n "$CFM ${BRed}Do you want install Zsh? [Y/n] ${Color_Off}"
+	echo -e -n "$CFM ${BGreen}Do you want install Zsh? [Y/n] ${Color_Off}"
 	if confirm $DEF_YES; then
 		sudo pacman -S zsh --noconfirm | tee -a "$INSTLOG"
 	fi
 fi
-ISOHMYZSH=$HOME/.oh-my-zsh/
-if [ -f "$ISOHMYZSH" ]; then
+
+ISOHMYZSH=$HOME/.oh-my-zsh
+if [ -d "$ISOHMYZSH" ]; then
 	echo -e "$OK - oh my zsh was located, moving on." | tee -a "$INSTLOG"
 else
 	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+	n
 fi
 
 #install chezmoi & sync
@@ -183,7 +185,7 @@ ISCHEZMOI=/sbin/chezmoi
 if [ -f "$ISCHEZMOI" ]; then
 	echo -e "$OK - chezmoi was located, moving on." | tee -a "$INSTLOG"
 else
-	echo -e -n "$CFM ${BRed}Do you want install chezmoi? [Y/n] ${Color_Off}"
+	echo -e -n "$CFM ${BGreen}Do you want install chezmoi? [Y/n] ${Color_Off}"
 	if confirm $DEF_YES; then
 		sudo pacman -S chezmoi --noconfirm
 		chezmoi init --apply https://github.com/ngtuonghy/dotfiles.git
@@ -194,7 +196,7 @@ fi
 echo -e -n "$CFM ${BGreen}Do you want install Neovim and dependencies[fd, ripgrep, lazygit]? [Y/n] ${Color_Off}"
 if confirm $DEF_YES; then
 	echo -e "\n$NOTE - Neovim setup stage, this may take a while..."
-	for SOFT_PACMAN in neovim fd ripgrep lazygit; do
+	for SOFT_PACMAN in neovim fd ripgrep lazygit tmux; do
 		install_software_pacman $SOFT_PACMAN
 	done
 else
