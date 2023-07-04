@@ -172,7 +172,7 @@ else
 	fi
 fi
 ISOHMYZSH=$HOME/.oh-my-zsh/
-if [ "$ISOHMYZSH" ]; then
+if [ -f "$ISOHMYZSH" ]; then
 	echo -e "$OK - oh my zsh was located, moving on." | tee -a "$INSTLOG"
 else
 	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
