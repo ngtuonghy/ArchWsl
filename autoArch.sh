@@ -193,10 +193,10 @@ else
 fi
 
 # install neovim and fd, ripgrep lazy git
-echo -e -n "$CFM ${BGreen}Do you want install Neovim and dependencies[fd, ripgrep, lazygit, tmux]? [Y/n] ${Color_Off}"
+echo -e -n "$CFM ${BGreen}Do you want install Neovim and dependencies[fd, ripgrep, lazygit, tmux, npm]? [Y/n] ${Color_Off}"
 if confirm $DEF_YES; then
 	echo -e "$NOTE - Neovim setup stage, this may take a while..."
-	for SOFT_PACMAN in neovim fd ripgrep lazygit tmux; do
+	for SOFT_PACMAN in neovim fd ripgrep lazygit tmux npm; do
 		install_software_pacman $SOFT_PACMAN
 	done
 else
