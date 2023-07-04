@@ -176,8 +176,11 @@ ISOHMYZSH=$HOME/.oh-my-zsh
 if [ -d "$ISOHMYZSH" ]; then
 	echo -e "$OK - oh my zsh was located, moving on." | tee -a "$INSTLOG"
 else
-	# sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+	echo -e -n "$CFM ${BGreen}Do you want install Oh My Zsh? [Y/n] ${Color_Off}"
+	if confirm $DEF_YES; then
+		sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+		# sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+	fi
 fi
 
 #install chezmoi & sync
