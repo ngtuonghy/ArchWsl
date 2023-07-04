@@ -188,14 +188,14 @@ else
 	echo -e -n "$CFM ${BGreen}Do you want install chezmoi? [Y/n] ${Color_Off}"
 	if confirm $DEF_YES; then
 		sudo pacman -S chezmoi --noconfirm
-		chezmoi init --apply https://github.com/ngtuonghy/dotfiles.git
+		chezmoi init --apply https://github.com/ngtuonghy/dotfilesWsl.git
 	fi
 fi
 
 # install neovim and fd, ripgrep lazy git
-echo -e -n "$CFM ${BGreen}Do you want install Neovim and dependencies[fd, ripgrep, lazygit]? [Y/n] ${Color_Off}"
+echo -e -n "$CFM ${BGreen}Do you want install Neovim and dependencies[fd, ripgrep, lazygit, tmux]? [Y/n] ${Color_Off}"
 if confirm $DEF_YES; then
-	echo -e "\n$NOTE - Neovim setup stage, this may take a while..."
+	echo -e "$NOTE - Neovim setup stage, this may take a while..."
 	for SOFT_PACMAN in neovim fd ripgrep lazygit tmux; do
 		install_software_pacman $SOFT_PACMAN
 	done
@@ -208,7 +208,7 @@ echo -e -n "$CFM${BGreen}Do you want sync oh my zsh and plugins? [Y/n] ${Color_O
 if confirm $DEF_YES; then
 	ISVIMMODE=$HOME/.oh-my-zsh/custom/plugins/zsh-vi-mode
 	if [ -d "$ISVIMMODE" ]; then # -d là kiểm tra đường dẫn
-		echo -e "\n$OK - zsh-vi-mode is already installed."
+		echo -e "$OK - zsh-vi-mode is already installed."
 	else
 		git clone https://github.com/jeffreytse/zsh-vi-mode ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom/}/plugins/zsh-vi-mode
 	fi
